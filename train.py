@@ -36,7 +36,7 @@ LEARNING_RATE = 0.001
 BATCH_SIZE = 10
 RESNET_LAST_ONLY = False #Fine tunes only the last layer. Set to False to fine tune entire network
 
-def train(dataloaders, dataset_sizes, model, optimizer, criterion, epoch, num_epochs):
+def train(dataloaders, dataset_sizes, class_names, weightlist, model, optimizer, criterion, epoch, num_epochs):
   model.train()
   epoch_loss = 0.0
   epoch_acc = 0.0
