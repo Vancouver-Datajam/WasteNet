@@ -1,40 +1,19 @@
-# -*- coding: utf-8 -*-
+from model import *
+from loader import *
 
-!pip3 install torch torchvision
-
-import torch
-torch.cuda.is_available()
-
-# Commented out IPython magic to ensure Python compatibility.
-"""Headers"""
-import os
-import os.path as osp
-import time
-
-# %matplotlib inline
 import matplotlib.pyplot as plt
+import argparse
 
 import torch
 import torch.nn as nn
 import torchvision.models as models
 import torch.optim as optim
 
-from torchvision import datasets
-
-import os.path as osp
-import os
-
 import matplotlib.pyplot as plt
 import matplotlib
 
-import numpy as np
-import torch
-from torch.utils.data import Dataset, DataLoader
-import torchvision
 import torchvision.transforms as transforms
 
-from __future__ import print_function
-from PIL import Image
 import numpy as np
 import sys
 if sys.version_info[0] == 2:
@@ -46,106 +25,12 @@ import math
 
 from skimage.transform import resize
 import scipy
-
+from scipy import interpolate
 
 np.random.seed(111)
 torch.cuda.manual_seed_all(111)
 torch.manual_seed(111)
 
-
-class Dataset_Gary(Dataset):
-
-	def __init__(self, root, fold="train",
-				 transform=None, target_transform=None):
-		
-		fold = fold.lower()
-
-		self.train = False
-		self.test = False
-		self.val = False
-
-		if fold == "train":
-			self.train = True
-		elif fold == "test":
-			self.test = True
-		elif fold == "val":
-			self.val = True
-		else:
-			raise RuntimeError("Not train-val-test")
-
-
-		self.root = os.path.expanduser(root)
-		self.transform = transform
-		self.target_transform = target_transform
-
-		fpath = self.root
-
-		# now load the picked numpy arrays
-		self.data = []
-		if self.train:
-			self.datalist_dir = os.path.join(self.root, 'train_list.txt')
-		if self.val:
-			self.datalist_dir = os.path.join(self.root, 'val_list.txt')
-		if self.test:
-			self.datalist_dir = os.path.join(self.root, 'test_list.txt')
-
-		with open(self.datalist_dir, 'r') as f:
-			for line in f:
-				if line[0] == '#' or len(line.strip()) == 0:
-					continue
-				params = line.strip().split()
-				self.data.append({
-					'file_name' : params[0],
-					'label' : params[1],})
-
-	def __getitem__(self, index):
-		label = self.data[index]['label']
-		if label == 'cardboard':
-			target = 0
-		if label == 'glass':
-			target = 1
-		if label == 'metal':
-			target = 2
-		if label == 'paper':
-			target = 3
-		if label == 'plastic':
-			target = 4
-		if label == 'trash':
-			target = 5
-		img = plt.imread(osp.join(self.root, self.data[index]['label'], self.data[index]['file_name']))
-
-		# doing this so that it is consistent with all other datasets
-		# to return a PIL Image
-		img = Image.fromarray(img)
-
-		if self.transform is not None:
-			img = self.transform(img)
-
-		if self.target_transform is not None:
-			target = self.target_transform(target)
-
-		return img, target
-
-	def __len__(self):
-		return len(self.data)
-
-class PreTrainedResNet(nn.Module):
-  def __init__(self, num_classes, feature_extracting):
-    super(PreTrainedResNet, self).__init__()
-    
-    self.resnet18 = models.resnet18(pretrained=True)
-
-    if feature_extracting:
-      for param in self.resnet18.parameters():
-          param.requires_grad = False
-    
-    num_feats = self.resnet18.fc.in_features
-    
-    self.resnet18.fc =  nn.Linear(num_feats,num_classes)
-
-  def forward(self, x):
-    x = self.resnet18.forward(x)
-    return x
 
 def train(model, optimizer, criterion, epoch, num_epochs):
   model.train()
@@ -250,102 +135,6 @@ def val(model, criterion, repeats=2):
 
     return test_loss, test_acc
 
-NUM_EPOCHS = 25
-LEARNING_RATE = 0.001 
-BATCH_SIZE = 10
-RESNET_LAST_ONLY = False #Fine tunes only the last layer. Set to False to fine tune entire network
-
-root_path = 'dataset/'
-
-data_transforms = {
-    'train': transforms.Compose([
-        transforms.Resize(384),
-        transforms.RandomHorizontalFlip(),
-        transforms.RandomVerticalFlip(),
-        transforms.ToTensor(),
-        transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
-    ]),
-    'test': transforms.Compose([
-        transforms.Resize(384),
-        transforms.ToTensor(),
-        transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
-    ]),
-}
-
-# loading datasets with PyTorch ImageFolder
-image_datasets_train = Dataset_Gary(root_path, fold="train",
-				 transform=data_transforms['train'], target_transform=None)
-
-image_datasets_val = Dataset_Gary(root_path, fold="val",
-				 transform=data_transforms['test'], target_transform=None)
-
-image_datasets_test = Dataset_Gary(root_path, fold="test",
-				 transform=data_transforms['test'], target_transform=None)
-
-# defining data loaders to load data using image_datasets and transforms, here we also specify batch size for the mini batch
-
-dataloader_train = torch.utils.data.DataLoader(image_datasets_train, batch_size=BATCH_SIZE,
-                                             shuffle=True, num_workers=4)
-            
-dataloader_val = torch.utils.data.DataLoader(image_datasets_val, batch_size=BATCH_SIZE,
-                                             shuffle=True, num_workers=4)
-
-dataloader_test = torch.utils.data.DataLoader(image_datasets_test, batch_size=BATCH_SIZE,
-                                             shuffle=True, num_workers=4)
-
-dataloaders = {'train': dataloader_train, 'test': dataloader_test, 'val':dataloader_val}
-
-dataset_size_train = len(image_datasets_train)
-dataset_size_val = len(image_datasets_val)
-dataset_size_test = len(image_datasets_test)
-
-dataset_sizes = {'train': dataset_size_train, 'test': dataset_size_test, 'val':dataset_size_val}
-
-class_names = ['cardboard', 'glass', 'metal', 'paper', 'plastic', 'trash']
-
-#Initialize the model
-model = PreTrainedResNet(len(class_names), RESNET_LAST_ONLY)
-model = model.cuda()
-
-#Setting the optimizer and loss criterion
-optimizer = optim.SGD(model.parameters(), lr=LEARNING_RATE, momentum=0.9 , weight_decay=1e-3)
-
-weightlist = [1,1,1,1,1,4]
-weightlist = torch.Tensor(weightlist)
-weightlist = weightlist.cuda()
-criterion = nn.CrossEntropyLoss(weight = weightlist)
-
-train_loss_list =[]
-train_acc_list = []
-val_loss_list =[]
-val_acc_list = []
-
-#Begin Train
-for epoch in range(NUM_EPOCHS):
-  t1,t2 = train(model, optimizer, criterion, epoch+1, NUM_EPOCHS)
-  train_loss_list.append(t1)
-  train_acc_list.append(t2)
-  if (epoch+1) % 5 == 0:
-    t1,t2 = val(model, criterion)
-    val_loss_list.append(t1)
-    val_acc_list.append(t2)
-  
-print("Finished Training")
-print("-"*10)
-
-t1,t2,conf_mat = test(model, criterion)
-print('Conf Mat\n',conf_mat)
-
-for i in range(6):
-  conf_mat[i,:] = conf_mat[i,:]/sum(conf_mat[i,:])
-
-plt.imshow(conf_mat, cmap='hot')
-
-plt.xticks([0,1,2,3,4,5],class_names)
-plt.yticks([0,1,2,3,4,5],class_names)
-plt.colorbar()
-plt.show()
-
 def imshow(inp, title=None):
     """Imshow for Tensor."""
     inp = inp.numpy().transpose((1, 2, 0))
@@ -383,38 +172,139 @@ def visualize_model(model, num_images=8):
             if images_so_far == num_images:
               return
 
-visualize_model(model)
 
-from scipy import interpolate
-x = np.arange(5, 25)
-x_train = np.arange(0,25)
-x1 = [5, 10, 15, 20, 25]
-f_loss = interpolate.interp1d(x1, val_loss_list)
-f_accuracy = interpolate.interp1d(x1, val_acc_list)
+def train_test_script(root_path):
+  NUM_EPOCHS = 25
+  LEARNING_RATE = 0.001 
+  BATCH_SIZE = 10
+  RESNET_LAST_ONLY = False #Fine tunes only the last layer. Set to False to fine tune entire network
+
+  data_transforms = {
+      'train': transforms.Compose([
+          transforms.Resize(384),
+          transforms.RandomHorizontalFlip(),
+          transforms.RandomVerticalFlip(),
+          transforms.ToTensor(),
+          transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
+      ]),
+      'test': transforms.Compose([
+          transforms.Resize(384),
+          transforms.ToTensor(),
+          transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
+      ]),
+  }
+
+  # loading datasets with PyTorch ImageFolder 
+  image_datasets_train = Dataset_Gary(root_path, fold="train",
+          transform=data_transforms['train'], target_transform=None)
+
+  image_datasets_val = Dataset_Gary(root_path, fold="val",
+          transform=data_transforms['test'], target_transform=None)
+
+  image_datasets_test = Dataset_Gary(root_path, fold="test",
+          transform=data_transforms['test'], target_transform=None)
+
+  # defining data loaders to load data using image_datasets and transforms, here we also specify batch size for the mini batch
+
+  dataloader_train = torch.utils.data.DataLoader(image_datasets_train, batch_size=BATCH_SIZE,
+                                              shuffle=True, num_workers=4)
+            
+  dataloader_val = torch.utils.data.DataLoader(image_datasets_val, batch_size=BATCH_SIZE,
+                                              shuffle=True, num_workers=4)
+
+  dataloader_test = torch.utils.data.DataLoader(image_datasets_test, batch_size=BATCH_SIZE,
+                                              shuffle=True, num_workers=4)
+
+  dataloaders = {'train': dataloader_train, 'test': dataloader_test, 'val':dataloader_val}
+
+  dataset_size_train = len(image_datasets_train)
+  dataset_size_val = len(image_datasets_val)
+  dataset_size_test = len(image_datasets_test)
+
+  dataset_sizes = {'train': dataset_size_train, 'test': dataset_size_test, 'val':dataset_size_val}
+
+  class_names = ['cardboard', 'glass', 'metal', 'paper', 'plastic', 'trash']
+
+  #Initialize the model
+  model = PreTrainedResNet(len(class_names), RESNET_LAST_ONLY)
+  model = model.cuda()
+
+  #Setting the optimizer and loss criterion
+  optimizer = optim.SGD(model.parameters(), lr=LEARNING_RATE, momentum=0.9 , weight_decay=1e-3)
+
+  weightlist = [1,1,1,1,1,4]
+  weightlist = torch.Tensor(weightlist)
+  weightlist = weightlist.cuda()
+  criterion = nn.CrossEntropyLoss(weight = weightlist)
+
+  train_loss_list =[]
+  train_acc_list = []
+  val_loss_list =[]
+  val_acc_list = []
+
+  #Begin Train
+  for epoch in range(NUM_EPOCHS):
+    t1,t2 = train(model, optimizer, criterion, epoch+1, NUM_EPOCHS)
+    train_loss_list.append(t1)
+    train_acc_list.append(t2)
+    if (epoch+1) % 5 == 0:
+      t1,t2 = val(model, criterion)
+      val_loss_list.append(t1)
+      val_acc_list.append(t2)
+  
+  print("Finished Training")
+  print("-"*10)
 
 
-val_acc = f_accuracy(x)   # use interpolation function returned by `interp1d`
-val_loss = f_loss(x)
+  x = np.arange(5, 25)
+  x_train = np.arange(0,25)
+  x1 = [5, 10, 15, 20, 25]
+  f_loss = interpolate.interp1d(x1, val_loss_list)
+  f_accuracy = interpolate.interp1d(x1, val_acc_list)
 
-train_loss_list
-train_acc_list
-val_loss
-val_acc
+  val_acc = f_accuracy(x)   # use interpolation function returned by `interp1d`
+  val_loss = f_loss(x)
+  print("Loss and Accuracy Plots:")
+  plt.figure()
+  plt.plot(x_train, train_loss_list)
+  plt.plot(x, val_loss)
+  plt.ylabel('loss')
+  plt.xlabel('epoch')
+  plt.legend(['train', 'validation'])
+  plt.show()
+  plt.figure()
+  plt.plot(x_train, train_acc_list)
+  plt.plot(x, val_acc)
+  plt.ylabel('accuracy')
+  plt.xlabel('epoch')
+  plt.legend(['train', 'validation'])
+  plt.show()
+
+  
+  ################################################### testing
+  print("Now testing")
+  t1,t2,conf_mat = test(model, criterion)
+  print('Conf Mat\n',conf_mat)
+
+  for i in range(6):
+    conf_mat[i,:] = conf_mat[i,:]/sum(conf_mat[i,:])
+
+  print("Confusion Matrix Visualization:")
+  plt.figure()
+  plt.imshow(conf_mat, cmap='hot')
+
+  plt.xticks([0,1,2,3,4,5],class_names)
+  plt.yticks([0,1,2,3,4,5],class_names)
+  plt.colorbar()
+  plt.show()
 
 
-plt.plot(x_train, train_loss_list)
-plt.plot(x, val_loss)
-plt.ylabel('loss')
-plt.xlabel('epoch')
-plt.legend(['train', 'validation'])
-plt.show()
-plt.figure()
-plt.plot(x_train, train_acc_list)
-plt.plot(x, val_acc)
-plt.ylabel('accuracy')
-plt.xlabel('epoch')
-plt.legend(['train', 'validation'])
-plt.show()
+  print("Visualization of Network's output on random test data:")
+  visualize_model(model)
+
+
+
+
 
 # def test_new(dataloader_new, model, criterion, repeats=2):
 #   model.eval()
@@ -462,7 +352,7 @@ plt.show()
 # root_path_new = 'our_dataset/' #If your data is in a different folder, set the path accodordingly
 
 # new_dataset_test = Dataset_Gary(root_path_new, fold="test",
-# 				 transform=transforms.Compose([
+#          transform=transforms.Compose([
 #         transforms.Resize((384, 512)),
 #         transforms.ToTensor(),
 #         transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
@@ -521,3 +411,12 @@ plt.show()
 #             if images_so_far ==20:
 #               return
 # visualize_model_new(dataloader_test_new,model)
+
+
+if __name__ == '__main__':
+
+  parser = argparse.ArgumentParser()
+  parser.add_argument('--dataset_directory', type=str)
+  args = parser.parse_args()
+
+  train_test_script(args.dataset_directory)
