@@ -6,6 +6,8 @@ Plastic pollution is one of the most pressing threats to our global oceans. From
 
 ## Project Description
 
+![](https://github.com/Vancouver-Datajam/project_3/blob/master/wastebin.png)
+
 ### Problem Statement
 
 We at Vancouver Datajam are trying to predict the category for different waste items using image classification techniques in machine learning and computer vision. 
