@@ -1,4 +1,4 @@
-# Project 3: Recyclables Image Classification 
+# Project 3: WasteNet
 
 ## Background
 
