@@ -47,9 +47,10 @@ We think this problem is super interesting and relevant as it can help determine
 ## How to use code in this repo
 
 This repo contains training and testing code for our proposed model.
-
 This script can be run using python notebooks.
-    
+
+to use your own dataset you should have 3 seperate textfiles (testlist.txt, trainlist.txt, vallist.txt) containing relative path for each image.
+
 ## References
 
 1. [Deep residual learning for image recognition](https://arxiv.org/abs/1512.03385), Kaiming He and Xiangyu Zhang and Shaoqing Ren and Jian Sun
