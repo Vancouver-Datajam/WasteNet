@@ -12,7 +12,7 @@ We at Vancouver Datajam are trying to predict the category for different waste i
 
 ### Dataset
 
-For our project, we work from a secondary data set collected and maintained by [Gary Thung](https://github.com/garythung/trashnet) and [Mindy Yang](https://github.com/yangmindy4). The dataset consists of 2527 images of objects over six classes namely paper, glass, plastic, metal, cardboard, trash. Because we love trash so much, we also went out and took some more pictures using our phones while doing the hackathon!
+For our project, we work from a secondary dataset collected and maintained by [Gary Thung](https://github.com/garythung/trashnet) and [Mindy Yang](https://github.com/yangmindy4). The dataset consists of 2527 images of objects over six classes namely paper, glass, plastic, metal, cardboard, trash. Because we love trash so much, we also went out and took some more pictures using our phones while doing the hackathon! And also used some photos from [TACO](tacodataset.org) for testing.
 
 ### Why is this interesting?
 
@@ -50,7 +50,7 @@ This repo contains training and testing code for our proposed model.
 
 This script can be run either by using python notebook or python script file.(both are the same)
 
-Download the dataset from https://github.com/garythung/trashnet/blob/master/data/dataset-resized.zip, unzip the folder, and copy the text files inside "lists" folder into the unzipped folder. 
+Download the dataset from [here](https://github.com/garythung/trashnet/blob/master/data/dataset-resized.zip), unzip the folder, and copy the text files inside "lists" folder into the unzipped folder. 
 
 To use your own dataset, you should have the images of different categories inside separate folders in the main dataset folder, and 3 seperate textfiles (test_list.txt, train_list.txt, val_list.txt) inside the main dataset folder, containing relative path for each image.
 
