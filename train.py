@@ -40,7 +40,8 @@ def train(model, optimizer, criterion, epoch, num_epochs):
   for batch_idx, (images, labels) in enumerate(dataloaders['train']):
     optimizer.zero_grad()
     
-    images, labels = images.cuda(), labels.cuda()
+    if torch.cuda.available():
+      images, labels = images.cuda(), labels.cuda()
     
     outputs = model.forward(images)
     
@@ -75,7 +76,8 @@ def test(model, criterion, repeats=2):
     for itr in range(repeats):
       for batch_idx, (images, labels) in enumerate(dataloaders['test']):
         #move to GPU
-        images, labels = images.cuda(), labels.cuda()
+        if torch.cuda.available():
+          images, labels = images.cuda(), labels.cuda()
 
         #forward
         outputs = model.forward(images)
@@ -116,7 +118,8 @@ def val(model, criterion, repeats=2):
     for itr in range(repeats):
       for batch_idx, (images, labels) in enumerate(dataloaders['val']):
         #move to GPU
-        images, labels = images.cuda(), labels.cuda()
+        if torch.cuda.available():
+          images, labels = images.cuda(), labels.cuda()
 
         #forward
         outputs = model.forward(images)
@@ -151,7 +154,8 @@ def visualize_model(model, num_images=8):
 
     for batch_idx, (images, labels) in enumerate(dataloaders['test']):
         #move to GPU
-        images, labels = images.cuda(), labels.cuda()
+        if torch.cuda.available():
+          images, labels = images.cuda(), labels.cuda()
         
         outputs = model(images)
         
@@ -227,14 +231,16 @@ def train_test_script(root_path):
 
   #Initialize the model
   model = PreTrainedResNet(len(class_names), RESNET_LAST_ONLY)
-  model = model.cuda()
+  if torch.cuda.available():
+    model = model.cuda()
 
   #Setting the optimizer and loss criterion
   optimizer = optim.SGD(model.parameters(), lr=LEARNING_RATE, momentum=0.9 , weight_decay=1e-3)
 
   weightlist = [1,1,1,1,1,4]
   weightlist = torch.Tensor(weightlist)
-  weightlist = weightlist.cuda()
+  if torch.cuda.available():
+    weightlist = weightlist.cuda()
   criterion = nn.CrossEntropyLoss(weight = weightlist)
 
   train_loss_list =[]
