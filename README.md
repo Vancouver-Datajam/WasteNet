@@ -47,7 +47,8 @@ We think this problem is super interesting and relevant as it can help determine
 ## How to use code in this repo
 
 This repo contains training and testing code for our proposed model.
-This script can be run using python notebooks.
+
+This script can be run either by using python notebook or python script file.(both are the same)
 
 to use your own dataset you should have 3 seperate textfiles (testlist.txt, trainlist.txt, vallist.txt) containing relative path for each image.
 
