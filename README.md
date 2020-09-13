@@ -50,8 +50,9 @@ This repo contains training and testing code for our proposed model.
 
 This script can be run either by using python notebook or python script file.(both are the same)
 
-Download the Dataset from https://github.com/garythung/trashnet/blob/master/data/dataset-resized.zip, unzip the folder, and copy the text files inside "lists" folder into the unzipped folder. 
-to use your own dataset, you should have the images of different categories inside separate folders in the main dataset folder, and 3 seperate textfiles (test_list.txt, train_list.txt, val_list.txt) inside the main dataset folder, containing relative path for each image.
+Download the dataset from https://github.com/garythung/trashnet/blob/master/data/dataset-resized.zip, unzip the folder, and copy the text files inside "lists" folder into the unzipped folder. 
+
+To use your own dataset, you should have the images of different categories inside separate folders in the main dataset folder, and 3 seperate textfiles (test_list.txt, train_list.txt, val_list.txt) inside the main dataset folder, containing relative path for each image.
 
 # How to use scripts
 
