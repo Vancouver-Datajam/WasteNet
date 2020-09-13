@@ -31,8 +31,12 @@ np.random.seed(111)
 torch.cuda.manual_seed_all(111)
 torch.manual_seed(111)
 
+NUM_EPOCHS = 25
+LEARNING_RATE = 0.001 
+BATCH_SIZE = 10
+RESNET_LAST_ONLY = False #Fine tunes only the last layer. Set to False to fine tune entire network
 
-def train(model, optimizer, criterion, epoch, num_epochs):
+def train(dataloaders, dataset_sizes, model, optimizer, criterion, epoch, num_epochs):
   model.train()
   epoch_loss = 0.0
   epoch_acc = 0.0
@@ -64,7 +68,7 @@ def train(model, optimizer, criterion, epoch, num_epochs):
 
 import sklearn.metrics as metric
 
-def test(model, criterion, repeats=2):
+def test(dataloaders, dataset_sizes, class_names, weightlist, criterion, model, repeats=2):
   model.eval()
   
   test_loss = 0.0
@@ -108,7 +112,7 @@ def test(model, criterion, repeats=2):
     return test_loss, test_acc, conf_mat
 
 
-def val(model, criterion, repeats=2):
+def val(dataloaders, dataset_sizes, class_names, weightlist, criterion, model, repeats=2):
   model.eval()
   
   test_loss = 0.0
@@ -148,7 +152,7 @@ def imshow(inp, title=None):
         plt.title(title)
     plt.pause(1)  # pause a bit so that plots are updated
     
-def visualize_model(model, num_images=8):
+def visualize_model(dataloaders, dataset_sizes, class_names, weightlist, criterion, model, num_images=8):
     images_so_far = 0
     fig = plt.figure()
 
@@ -178,10 +182,6 @@ def visualize_model(model, num_images=8):
 
 
 def train_test_script(root_path):
-  NUM_EPOCHS = 25
-  LEARNING_RATE = 0.001 
-  BATCH_SIZE = 10
-  RESNET_LAST_ONLY = False #Fine tunes only the last layer. Set to False to fine tune entire network
 
   data_transforms = {
       'train': transforms.Compose([
@@ -250,11 +250,11 @@ def train_test_script(root_path):
 
   #Begin Train
   for epoch in range(NUM_EPOCHS):
-    t1,t2 = train(model, optimizer, criterion, epoch+1, NUM_EPOCHS)
+    t1,t2 = train(dataloaders, dataset_sizes, class_names, weightlist, model, optimizer, criterion, epoch+1, NUM_EPOCHS)
     train_loss_list.append(t1)
     train_acc_list.append(t2)
     if (epoch+1) % 5 == 0:
-      t1,t2 = val(model, criterion)
+      t1,t2 = val(dataloaders, dataset_sizes, class_names, weightlist, criterion, model)
       val_loss_list.append(t1)
       val_acc_list.append(t2)
   
@@ -289,7 +289,7 @@ def train_test_script(root_path):
   
   ################################################### testing
   print("Now testing")
-  t1,t2,conf_mat = test(model, criterion)
+  t1,t2,conf_mat = test(dataloaders, dataset_sizes, class_names, weightlist, criterion, model)
   print('Conf Mat\n',conf_mat)
 
   for i in range(6):
@@ -306,7 +306,7 @@ def train_test_script(root_path):
 
 
   print("Visualization of Network's output on random test data:")
-  visualize_model(model)
+  visualize_model(dataloaders, dataset_sizes, class_names, weightlist, criterion, model)
 
 
 
