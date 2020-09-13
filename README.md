@@ -12,7 +12,7 @@ We at Vancouver Datajam are trying to predict the category for different waste i
 
 ### Dataset
 
-For our project, we work from a secondary dataset collected and maintained by [Gary Thung](https://github.com/garythung/trashnet) and [Mindy Yang](https://github.com/yangmindy4). The dataset consists of 2527 images of objects over six classes namely paper, glass, plastic, metal, cardboard, trash. Because we love trash so much, we also went out and took some more pictures using our phones while doing the hackathon! And also used some photos from [TACO](tacodataset.org) for testing.
+For our project, we work from a secondary dataset collected and maintained by [Gary Thung](https://github.com/garythung/trashnet) and [Mindy Yang](https://github.com/yangmindy4). The dataset consists of 2527 images of objects over six classes namely paper, glass, plastic, metal, cardboard, trash. Because we love trash so much, we also went out and took some more pictures using our phones while doing the hackathon! And also used some photos from http://tacodataset.org/ [TACO](tacodataset.org) for testing.
 
 ### Why is this interesting?
 
