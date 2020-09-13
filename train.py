@@ -40,9 +40,9 @@ def train(model, optimizer, criterion, epoch, num_epochs):
   for batch_idx, (images, labels) in enumerate(dataloaders['train']):
     optimizer.zero_grad()
     
-    if torch.cuda.available():
+    if torch.cuda.is_available():
       images, labels = images.cuda(), labels.cuda()
-    
+
     outputs = model.forward(images)
     
     loss = criterion(outputs, labels)
@@ -76,7 +76,7 @@ def test(model, criterion, repeats=2):
     for itr in range(repeats):
       for batch_idx, (images, labels) in enumerate(dataloaders['test']):
         #move to GPU
-        if torch.cuda.available():
+        if torch.cuda.is_available():
           images, labels = images.cuda(), labels.cuda()
 
         #forward
@@ -118,7 +118,7 @@ def val(model, criterion, repeats=2):
     for itr in range(repeats):
       for batch_idx, (images, labels) in enumerate(dataloaders['val']):
         #move to GPU
-        if torch.cuda.available():
+        if torch.cuda.is_available():
           images, labels = images.cuda(), labels.cuda()
 
         #forward
@@ -154,7 +154,7 @@ def visualize_model(model, num_images=8):
 
     for batch_idx, (images, labels) in enumerate(dataloaders['test']):
         #move to GPU
-        if torch.cuda.available():
+        if torch.cuda.is_available():
           images, labels = images.cuda(), labels.cuda()
         
         outputs = model(images)
@@ -231,7 +231,7 @@ def train_test_script(root_path):
 
   #Initialize the model
   model = PreTrainedResNet(len(class_names), RESNET_LAST_ONLY)
-  if torch.cuda.available():
+  if torch.cuda.is_available():
     model = model.cuda()
 
   #Setting the optimizer and loss criterion
@@ -239,7 +239,7 @@ def train_test_script(root_path):
 
   weightlist = [1,1,1,1,1,4]
   weightlist = torch.Tensor(weightlist)
-  if torch.cuda.available():
+  if torch.cuda.is_available():
     weightlist = weightlist.cuda()
   criterion = nn.CrossEntropyLoss(weight = weightlist)
 
