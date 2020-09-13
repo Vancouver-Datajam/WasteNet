@@ -50,13 +50,15 @@ This repo contains training and testing code for our proposed model.
 
 This script can be run either by using python notebook or python script file.(both are the same)
 
+ ```python3 train.py --dataset_directory <the directory for the dataset here>```
+
 Download the dataset from [here](https://github.com/garythung/trashnet/blob/master/data/dataset-resized.zip), unzip the folder, and copy the text files inside the folder [list](https://github.com/zubiamansoor/project_3/tree/master/list) into the unzipped folder. 
 
 To use your own dataset, you should have the images of different categories inside separate folders in the main dataset folder, and 3 seperate textfiles (test_list.txt, train_list.txt, val_list.txt) inside the main dataset folder, containing relative path for each image.
 
-# How to use scripts
+## Supplemental Materials
 
-Run python3 train.py --dataset_directory 'the directory for the dataset here'
+Team WasteNet accomplished a lot in ONE day and presented our findings at the end of the hackathon! You can find our slides [here.](https://github.com/zubiamansoor/project_3/blob/master/Presentation.pptx)
 
 ## References
 
